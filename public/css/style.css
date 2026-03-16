@@ -1,0 +1,68 @@
+:root {
+    --bg-base: #09090b;
+    --panel-bg: #18181b;
+    --border: #27272a;
+    --text-main: #f4f4f5;
+    --text-dim: #a1a1aa;
+    --accent: #3b82f6;
+    --buy: #22c55e;
+    --sell: #ef4444;
+    --hold: #eab308;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+
+body { background: var(--bg-base); color: var(--text-main); padding: 2rem; }
+.container { max-width: 1400px; margin: 0 auto; }
+
+header { 
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem;
+}
+.logo h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+.logo span { color: var(--accent); }
+.logo p { color: var(--text-dim); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px; }
+
+.controls { display: flex; gap: 10px; }
+input { 
+    background: var(--bg-base); color: var(--text-main); border: 1px solid var(--border);
+    padding: 0.8rem 1.2rem; border-radius: 4px; width: 300px; font-size: 1rem;
+}
+button {
+    background: var(--accent); color: #fff; border: none; padding: 0.8rem 1.5rem;
+    border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s;
+}
+button:hover { background: #2563eb; }
+
+.loader { display: none; color: var(--accent); margin-bottom: 1rem; font-weight: bold; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+.master-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; }
+
+.card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 20px;}
+.card h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: 1px; }
+
+/* Signal Banner */
+.signal-banner {
+    display: flex; justify-content: space-between; background: var(--panel-bg);
+    border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin-bottom: 20px;
+}
+.label { color: var(--text-dim); font-size: 0.8rem; letter-spacing: 1.5px; }
+.signal-banner h2 { font-size: 2.5rem; margin-top: 10px; font-variant-numeric: tabular-nums; }
+
+.color-buy { color: var(--buy) !important; text-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+.color-sell { color: var(--sell) !important; text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+.color-hold { color: var(--hold) !important; }
+
+/* Technicals & Levels */
+.data-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.data-row:last-child { border: none; }
+.data-row span { color: var(--text-dim); }
+
+.level-box { padding: 15px; border-radius: 6px; margin-bottom: 10px; text-align: center; border: 1px solid var(--border); }
+.level-box h4 { font-size: 1.5rem; margin-top: 5px; }
+.limit { border-left: 4px solid var(--buy); background: rgba(34, 197, 94, 0.05); }
+.pivot { border-left: 4px solid var(--accent); background: rgba(59, 130, 246, 0.05); }
+.stop { border-left: 4px solid var(--sell); background: rgba(239, 68, 68, 0.05); }
+
+.chart-container { height: 450px; position: relative; }
