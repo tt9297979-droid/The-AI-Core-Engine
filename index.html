@@ -8,7 +8,7 @@
         body { background: #010409; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #0d1117; border: 1px solid #30363d; padding: 30px; border-radius: 15px; width: 320px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 15px 0; background: #161b22; border: 1px solid #30363d; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #238636; border: none; color: #fff; font-weight: bold; cursor: pointer; }
+        button { width: 100%; padding: 12px; background: #238636; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
         #terminal { display: none; }
     </style>
 </head>
@@ -17,13 +17,13 @@
     <div class="card" id="login-box">
         <h2>QUANTUM <span style="color:#00ff9d">ALPHA</span></h2>
         <input type="text" id="pass-key" placeholder="ใส่รหัส VIP (เช่น WIN-99)">
-        <button onclick="login()">เข้าสู่ระบบ</button>
+        <button onclick="login()">INITIALIZE TERMINAL</button>
     </div>
 
     <div class="card" id="terminal">
-        <div style="color: #8b949e;">XAU/USD LIVE</div>
+        <div style="color: #8b949e; font-size: 0.8rem;">XAU/USD SPOT LIVE</div>
         <div id="price" style="font-size: 3rem; font-weight: bold; margin: 20px 0;">0.00</div>
-        <div id="signal" style="font-size: 1.5rem; font-weight: bold;">--</div>
+        <div id="signal" style="font-size: 1.5rem; font-weight: bold;">ANALYZING...</div>
     </div>
 
     <script>
