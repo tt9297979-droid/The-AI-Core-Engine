@@ -2,52 +2,53 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>QUANTUM ALPHA X</title>
+    <title>QUANTUM ALPHA PRO | ZERO-DELAY</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background: #010409; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #0d1117; border: 1px solid #30363d; padding: 30px; border-radius: 15px; width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 15px 0; background: #161b22; border: 1px solid #30363d; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #238636; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        #terminal { display: none; }
+        body { background: #000; color: #fff; font-family: monospace; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .wrap { width: 100%; max-width: 400px; padding: 20px; border: 1px solid #222; }
+        .p { font-size: 5rem; font-weight: 900; text-align: center; margin: 10px 0; color: #00ff9d; letter-spacing: -4px; }
+        .signal { background: #111; padding: 15px; text-align: center; font-size: 1.5rem; border: 1px solid #333; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
+        .item { background: #0a0a0a; padding: 10px; border: 1px solid #222; font-size: 0.8rem; }
+        .live { color: #00ff9d; font-size: 0.6rem; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
+    <div class="wrap">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div class="live">● LIVE_STREAM_ACTIVE</div>
+            <div style="font-size: 0.6rem; color: #666;">LATENCY: <span id="lat">0</span>ms</div>
+        </div>
+        
+        <div id="p" class="p">0.00</div>
+        <div id="s" class="signal">SYNCING...</div>
 
-    <div class="card" id="login-box">
-        <h2>QUANTUM <span style="color:#00ff9d">ALPHA</span></h2>
-        <input type="text" id="pass-key" placeholder="ใส่รหัส VIP (เช่น WIN-99)">
-        <button onclick="login()">INITIALIZE TERMINAL</button>
-    </div>
-
-    <div class="card" id="terminal">
-        <div style="color: #8b949e; font-size: 0.8rem;">XAU/USD SPOT LIVE</div>
-        <div id="price" style="font-size: 3rem; font-weight: bold; margin: 20px 0;">0.00</div>
-        <div id="signal" style="font-size: 1.5rem; font-weight: bold;">ANALYZING...</div>
+        <div class="grid">
+            <div class="item">TP: <span id="t" style="color:#00ff9d">--</span></div>
+            <div class="item">SL: <span id="l" style="color:#ff4d4d">--</span></div>
+        </div>
     </div>
 
     <script>
-        async function login() {
-            const key = document.getElementById('pass-key').value;
-            const res = await fetch('/api', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: "AUTH", key: key })
-            });
-            if (res.ok) {
-                document.getElementById('login-box').style.display = 'none';
-                document.getElementById('terminal').style.display = 'block';
-                setInterval(update, 5000); update();
-            } else { alert("รหัสไม่ถูกต้อง!"); }
+        async function sync() {
+            const start = Date.now();
+            try {
+                const r = await fetch('/api');
+                const d = await r.json();
+                document.getElementById('p').innerText = d.p;
+                const s = document.getElementById('s');
+                s.innerText = d.s;
+                s.style.color = d.c;
+                s.style.borderColor = d.c;
+                document.getElementById('t').innerText = d.t;
+                document.getElementById('l').innerText = d.l;
+                document.getElementById('lat').innerText = Date.now() - start;
+            } catch(e) {}
         }
-
-        async function update() {
-            const res = await fetch('/api');
-            const d = await res.json();
-            document.getElementById('price').innerText = d.price;
-            document.getElementById('signal').innerText = d.signal;
-            document.getElementById('signal').style.color = d.color;
-        }
+        // ตั้งเวลาอัปเดตทุก 1 วินาที (1000ms) เพื่อความลื่นไหลสูงสุด
+        setInterval(sync, 1000); sync();
     </script>
 </body>
 </html>
