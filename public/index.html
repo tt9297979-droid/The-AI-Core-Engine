@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum AI Hedge Terminal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo">
+            <h1>QUANTUM AI <span>TERMINAL</span></h1>
+            <p>Advanced Quantitative Analysis Engine</p>
+        </div>
+        <div class="controls">
+            <input id="symbol" value="BTC-USD" placeholder="Assets: GC=F (Gold), BTC-USD, AAPL">
+            <button id="btn-analyze" onclick="executeAnalysis()">RUN ALGORITHM</button>
+        </div>
+    </header>
+
+    <div id="loading" class="loader">Running Multi-Dimensional Analysis...</div>
+
+    <div class="master-grid">
+        <div class="main-panel">
+            <div class="signal-banner" id="signal-banner">
+                <div class="price-block">
+                    <span class="label">CURRENT PRICE</span>
+                    <h2 id="val-price">0.00</h2>
+                </div>
+                <div class="decision-block">
+                    <span class="label">AI CONSENSUS</span>
+                    <h2 id="val-signal">STANDBY</h2>
+                </div>
+            </div>
+
+            <div class="card chart-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="card data-module">
+                <h3>Technical Indicators</h3>
+                <div class="data-row"><span>RSI (14)</span> <strong id="val-rsi">-</strong></div>
+                <div class="data-row"><span>MACD Trend</span> <strong id="val-macd">-</strong></div>
+                <div class="data-row"><span>SMA (20)</span> <strong id="val-sma">-</strong></div>
+                <div class="data-row"><span>Volatility</span> <strong id="val-trend">-</strong></div>
+            </div>
+
+            <div class="card level-module">
+                <h3>Action Levels (Pivot Points)</h3>
+                <div class="level-box limit">
+                    <span>Target (R1)</span>
+                    <h4 id="val-r1">-</h4>
+                </div>
+                <div class="level-box pivot">
+                    <span>Pivot Point</span>
+                    <h4 id="val-pivot">-</h4>
+                </div>
+                <div class="level-box stop">
+                    <span>Stop Loss (S1)</span>
+                    <h4 id="val-s1">-</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
