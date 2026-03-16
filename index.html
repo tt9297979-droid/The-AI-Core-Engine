@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>QUANTUM ALPHA X - LIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { background: #010409; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #0d1117; border: 1px solid #30363d; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 12px; margin: 15px 0; background: #161b22; border: 1px solid #30363d; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #238636; border: none; color: #fff; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        #main-ui { display: none; }
+        .price { font-size: 3.5rem; font-weight: 800; margin: 20px 0; letter-spacing: -2px; }
+        .status { font-size: 0.7rem; margin-top: 10px; color: #8b949e; }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="auth-ui">
+        <h2 style="margin:0">QUANTUM <span style="color:#00ff9d">ALPHA</span></h2>
+        <input type="password" id="vip-key" placeholder="ป้อนรหัส VIP ACCESS">
+        <button onclick="login()">INITIALIZE TERMINAL</button>
+        <div class="status" id="sys-status">● SYSTEM CHECKING...</div>
+    </div>
+
+    <div class="container" id="main-ui">
+        <div style="font-size: 0.8rem; color: #8b949e;">XAU/USD SPOT LIVE</div>
+        <div class="price" id="price">0.00</div>
+        <div id="signal" style="font-size: 1.5rem; font-weight: bold;">SCANNING...</div>
+        <hr style="border: 0.5px solid #30363d; margin: 20px 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+            <div>SENT: <span id="sent">--</span></div>
+            <div>TP: <span id="tp" style="color:#00ff9d">--</span></div>
+        </div>
+    </div>
+
+    <script>
+        // ตรวจสอบสถานะ Server ทันที
+        async function check() {
+            try {
+                const r = await fetch('/api');
+                if(r.ok) { 
+                    document.getElementById('sys-status').innerText = '● SYSTEM ONLINE';
+                    document.getElementById('sys-status').style.color = '#00ff9d';
+                }
+            } catch(e) {}
+        }
+        check();
+
+        async function login() {
+            const key = document.getElementById('vip-key').value;
+            const res = await fetch('/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: "AUTH", key })
+            });
+            if(res.ok) {
+                document.getElementById('auth-ui').style.display = 'none';
+                document.getElementById('main-ui').style.display = 'block';
+                setInterval(sync, 5000); sync();
+            } else { alert("ACCESS DENIED"); }
+        }
+
+        async function sync() {
+            try {
+                const res = await fetch('/api');
+                const d = await res.json();
+                document.getElementById('price').innerText = d.price;
+                document.getElementById('signal').innerText = d.signal;
+                document.getElementById('signal').style.color = d.color;
+                document.getElementById('sent').innerText = d.sentiment;
+                document.getElementById('tp').innerText = d.tp;
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
