@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>MASTER ADMIN</title>
+    <style>
+        body { background: #010409; color: #fff; font-family: sans-serif; text-align: center; padding: 50px; }
+        .box { background: #0d1117; border: 1px solid #30363d; padding: 20px; border-radius: 10px; max-width: 400px; margin: auto; }
+        input { width: 80%; padding: 10px; margin: 10px 0; background: #161b22; border: 1px solid #30363d; color: #fff; }
+        button { background: #238636; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>ADMIN CONTROL PANEL</h3>
+        <input type="password" id="m-key" placeholder="MASTER SECRET">
+        <button onclick="gen()">GENERATE VIP KEY</button>
+        <div id="out" style="margin-top:20px; color:#00ff9d; font-family: monospace; font-size: 1.2rem;"></div>
+    </div>
+    <script>
+        async function gen() {
+            const secret = document.getElementById('m-key').value;
+            const res = await fetch('/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: "GEN_KEY", adminSecret: secret })
+            });
+            const d = await res.json();
+            document.getElementById('out').innerText = d.newKey || "ERROR: WRONG MASTER KEY";
+        }
+    </script>
+</body>
+</html>
