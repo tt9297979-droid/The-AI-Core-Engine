@@ -1,74 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum AI Hedge Terminal</title>
+    <title>QUANTUM ALPHA X | PROFESSIONAL TERMINAL</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        :root { --buy: #00ff88; --sell: #ff3344; --bg: #020617; }
+        body { background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 380px; background: #070c18; border-right: 1px solid #1e293b; padding: 25px; display: flex; flex-direction: column; }
+        .main { flex: 1; padding: 25px; display: flex; flex-direction: column; }
+        .card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+        .signal-box { text-align: center; border-top: 4px solid #334155; transition: 0.5s; }
+        .signal-box.buy { border-color: var(--buy); box-shadow: 0 0 30px rgba(0, 255, 136, 0.1); }
+        .signal-box.sell { border-color: var(--sell); box-shadow: 0 0 30px rgba(255, 51, 68, 0.1); }
+        .price-text { font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; text-align: left; }
+        .chart-container { flex: 1; position: relative; }
+        .news-item { font-size: 0.8rem; color: #94a3b8; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+        input { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 10px; width: 100%; box-sizing: border-box; }
+    </style>
 </head>
 <body>
-
-<div class="container">
-    <header>
-        <div class="logo">
-            <h1>QUANTUM AI <span>TERMINAL</span></h1>
-            <p>Advanced Quantitative Analysis Engine</p>
+    <div class="sidebar">
+        <h2 style="margin:0 0 20px 0; color:var(--buy)">ALPHA X <span style="color:#fff">V3</span></h2>
+        <input id="symbol" value="GC=F" placeholder="SYMBOL (e.g. BTC-USD)">
+        <div id="signal-container" class="card signal-box">
+            <div id="price" class="price-text">0.00</div>
+            <div id="signal" style="font-size: 1.5rem; font-weight: bold;">SYNCING...</div>
+            <div class="stat-grid" id="stats"></div>
         </div>
-        <div class="controls">
-            <input id="symbol" value="BTC-USD" placeholder="Assets: GC=F (Gold), BTC-USD, AAPL">
-            <button id="btn-analyze" onclick="executeAnalysis()">RUN ALGORITHM</button>
-        </div>
-    </header>
-
-    <div id="loading" class="loader">Running Multi-Dimensional Analysis...</div>
-
-    <div class="master-grid">
-        <div class="main-panel">
-            <div class="signal-banner" id="signal-banner">
-                <div class="price-block">
-                    <span class="label">CURRENT PRICE</span>
-                    <h2 id="val-price">0.00</h2>
-                </div>
-                <div class="decision-block">
-                    <span class="label">AI CONSENSUS</span>
-                    <h2 id="val-signal">STANDBY</h2>
-                </div>
-            </div>
-
-            <div class="card chart-container">
-                <canvas id="mainChart"></canvas>
-            </div>
-        </div>
-
-        <div class="side-panel">
-            <div class="card data-module">
-                <h3>Technical Indicators</h3>
-                <div class="data-row"><span>RSI (14)</span> <strong id="val-rsi">-</strong></div>
-                <div class="data-row"><span>MACD Trend</span> <strong id="val-macd">-</strong></div>
-                <div class="data-row"><span>SMA (20)</span> <strong id="val-sma">-</strong></div>
-                <div class="data-row"><span>Volatility</span> <strong id="val-trend">-</strong></div>
-            </div>
-
-            <div class="card level-module">
-                <h3>Action Levels (Pivot Points)</h3>
-                <div class="level-box limit">
-                    <span>Target (R1)</span>
-                    <h4 id="val-r1">-</h4>
-                </div>
-                <div class="level-box pivot">
-                    <span>Pivot Point</span>
-                    <h4 id="val-pivot">-</h4>
-                </div>
-                <div class="level-box stop">
-                    <span>Stop Loss (S1)</span>
-                    <h4 id="val-s1">-</h4>
-                </div>
-            </div>
+        <div class="card" style="flex:1; overflow-y:auto;">
+            <div style="font-size:0.7rem; color:#64748b; margin-bottom:10px;">GLOBAL NEWS FEED</div>
+            <div id="news"></div>
         </div>
     </div>
-</div>
-
-<script src="/js/app.js"></script>
+    <div class="main">
+        <div class="card chart-container">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+    <script src="/js/app.js"></script>
 </body>
 </html>
