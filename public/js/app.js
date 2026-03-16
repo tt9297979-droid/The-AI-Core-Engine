@@ -1,74 +1,68 @@
 let chart;
-let syncTimer;
 
-async function runSystem() {
-    const symbol = document.getElementById("symbol").value.trim().toUpperCase();
-    const btn = document.getElementById("btn-run");
-    
-    btn.disabled = true;
-    btn.innerHTML = "SYSTEM SYNCING...";
-
+async function runQuantumEngine() {
+    const sym = document.getElementById("symbol").value;
     try {
-        // 1. ดึงข้อมูลกราฟ
-        const mRes = await fetch(`/api/market?symbol=${symbol}`);
-        const mData = await mRes.json();
-        renderChart(mData.prices);
+        const [aRes, mRes, nRes] = await Promise.all([
+            fetch(`/api/analyze?symbol=${sym}`),
+            fetch(`/api/market?symbol=${sym}`),
+            fetch(`/api/news?symbol=${sym}`)
+        ]);
 
-        // 2. วิเคราะห์ด้วย AI
-        const aRes = await fetch(`/api/analyze?symbol=${symbol}`);
-        const aData = await aRes.json();
-        updateDisplay(aData);
+        const data = await aRes.json();
+        const market = await mRes.json();
+        const news = await nRes.json();
 
-        // 3. เริ่มระบบ Auto-Update ทุก 15 วินาที
-        if (syncTimer) clearInterval(syncTimer);
-        syncTimer = setInterval(() => silentSync(symbol), 15000);
+        // Update Signals
+        const container = document.getElementById("signal-container");
+        container.className = `card signal-box ${data.color}`;
+        document.getElementById("price").innerText = data.price;
+        document.getElementById("signal").innerText = data.signal;
+        document.getElementById("signal").style.color = `var(--${data.color})`;
+        
+        document.getElementById("stats").innerHTML = `
+            <div>ENTRY: <strong>${data.entry}</strong></div>
+            <div>SENTIMENT: <strong>${data.sentiment}</strong></div>
+            <div style="color:var(--buy)">TARGET: ${data.tp}</div>
+            <div style="color:var(--sell)">STOP: ${data.sl}</div>
+        `;
 
-    } catch (err) {
-        alert("System Error: โปรดตรวจสอบชื่อย่อหุ้น/เหรียญ");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = "RUN SYSTEM";
-    }
-}
+        // Update Chart
+        renderChart(market.prices);
 
-function updateDisplay(data) {
-    const box = document.getElementById("analysis-box");
-    box.className = `card border-${data.color}`;
-    box.innerHTML = `
-        <div class="live-indicator">LIVE UPDATED: ${data.update}</div>
-        <h2 class="price">$${parseFloat(data.price).toLocaleString()}</h2>
-        <div class="signal-tag ${data.color}">${data.signal}</div>
-        <hr>
-        <div class="levels">
-            <p>Target (TP): <span class="buy">${data.tp}</span></p>
-            <p>Stop Loss (SL): <span class="sell">${data.sl}</span></p>
-            <p>RSI: <strong>${data.rsi}</strong></p>
-        </div>
-    `;
-}
+        // Update News
+        document.getElementById("news").innerHTML = news.map(n => 
+            `<div class="news-item">${n.headline || n.title}</div>`
+        ).join('');
 
-async function silentSync(symbol) {
-    const res = await fetch(`/api/analyze?symbol=${symbol}`);
-    const data = await res.json();
-    updateDisplay(data);
+    } catch (e) { console.error("Data Stream Interrupted"); }
 }
 
 function renderChart(prices) {
     const ctx = document.getElementById("mainChart").getContext("2d");
     if (chart) chart.destroy();
     chart = new Chart(ctx, {
-        type: "line",
+        type: 'line',
         data: {
             labels: prices.map((_, i) => i),
             datasets: [{
                 data: prices,
-                borderColor: "#3b82f6",
+                borderColor: '#00ff88',
                 borderWidth: 2,
+                pointRadius: 0,
                 fill: true,
-                backgroundColor: "rgba(59, 130, 246, 0.1)",
-                pointRadius: 0
+                backgroundColor: 'rgba(0, 255, 136, 0.05)'
             }]
         },
-        options: { responsive: true, scales: { x: { display: false } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { x: { display: false }, y: { grid: { color: '#1e293b' } } },
+            plugins: { legend: { display: false } }
+        }
     });
 }
+
+// ระบบ High-Frequency Update ทุก 5 วินาที
+setInterval(runQuantumEngine, 5000);
+window.onload = runQuantumEngine;
