@@ -1,53 +1,57 @@
 import axios from "axios";
 
-// ฟังก์ชันคำนวณทางสถิติเพื่อความแม่นยำระดับมืออาชีพ
-const calcRSI = (prices, period = 14) => {
-    if (prices.length < period) return 50;
-    let gains = 0, losses = 0;
-    for (let i = prices.length - period; i < prices.length; i++) {
-        const diff = prices[i] - prices[i - 1];
-        if (diff >= 0) gains += diff; else losses -= diff;
-    }
-    const rs = (gains / period) / (losses / period || 1);
-    return 100 - (100 / (1 + rs));
+const EMA = (d, p) => {
+    const k = 2 / (p + 1);
+    return d.reduce((a, v, i) => i === 0 ? v : (v * k) + (a * (1 - k)), d[0]);
 };
 
 export default async function handler(req, res) {
-    const symbol = req.query.symbol || "BTC-USD";
+    const symbol = req.query.symbol || "GC=F"; // XAU/USD Proxy
+    const key = process.env.FINNHUB_KEY;
+
     try {
-        // ดึงข้อมูลย้อนหลัง 6 เดือนเพื่อให้ Indicator เสถียรที่สุด
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=6mo`;
-        const r = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-        const result = r.data.chart.result[0];
-        const close = result.indicators.quote[0].close.filter(p => p !== null);
-        const high = result.indicators.quote[0].high.filter(p => p !== null);
-        const low = result.indicators.quote[0].low.filter(p => p !== null);
+        const [mRes, nRes] = await Promise.all([
+            axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=5m&range=5d`),
+            axios.get(`https://finnhub.io/api/v1/news-sentiment?symbol=${symbol.split('=')[0]}&token=${key}`)
+        ]);
 
-        const lastPrice = close.at(-1);
-        const rsi = calcRSI(close, 14);
+        const quotes = mRes.data.chart.result[0].indicators.quote[0];
+        const prices = quotes.close.filter(x => x);
+        const cur = prices.at(-1);
         
-        // คำนวณ Pivot Points สำหรับจุด Buy/Sell จริง
-        const pHigh = high.at(-2), pLow = low.at(-2), pClose = close.at(-2);
-        const pivot = (pHigh + pLow + pClose) / 3;
-        const r1 = (2 * pivot) - pLow; // แนวต้าน (จุดขาย)
-        const s1 = (2 * pivot) - pHigh; // แนวรับ (จุดซื้อ)
+        // --- AI Signal Logic ---
+        const rsi = (prices) => {
+            let g = 0, l = 0;
+            for (let i = prices.length - 14; i < prices.length; i++) {
+                let d = prices[i] - prices[i-1];
+                d >= 0 ? g += d : l -= d;
+            }
+            return 100 - (100 / (1 + (g / (l || 1))));
+        }(prices);
 
-        let signal = "NEUTRAL", color = "hold";
-        if (rsi < 30 || lastPrice <= s1) { signal = "STRONG BUY"; color = "buy"; }
-        else if (rsi > 70 || lastPrice >= r1) { signal = "STRONG SELL"; color = "sell"; }
-        else if (lastPrice > pivot) { signal = "BUY / TREND UP"; color = "buy"; }
-        else { signal = "SELL / TREND DOWN"; color = "sell"; }
+        const sentiment = nRes.data?.sentiment?.bullishPercent || 0.5;
+        const trend = EMA(prices, 50);
 
-        res.status(200).json({
-            price: lastPrice.toFixed(2),
-            rsi: rsi.toFixed(2),
-            signal,
-            color,
-            tp: r1.toFixed(2),
-            sl: s1.toFixed(2),
-            update: new Date().toLocaleTimeString()
+        let signal = "NEUTRAL", color = "hold", score = 0;
+        if (cur > trend) score += 1;
+        if (rsi < 35) score += 2;
+        if (sentiment > 0.6) score += 1;
+        if (rsi > 65) score -= 2;
+
+        if (score >= 2) { signal = "PRECISION BUY"; color = "buy"; }
+        else if (score <= -1) { signal = "PRECISION SELL"; color = "sell"; }
+
+        res.json({
+            price: cur.toFixed(2),
+            rsi: rsi.toFixed(1),
+            sentiment: (sentiment * 100).toFixed(0) + "%",
+            signal, color,
+            entry: cur.toFixed(2),
+            tp: (cur * (color === "buy" ? 1.01 : 0.99)).toFixed(2),
+            sl: (cur * (color === "buy" ? 0.995 : 1.005)).toFixed(2),
+            time: new Date().toLocaleTimeString()
         });
     } catch (e) {
-        res.status(500).json({ error: "Market API Error" });
+        res.status(500).json({ error: "Quantum Link Offline" });
     }
 }
