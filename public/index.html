@@ -1,0 +1,22 @@
+<h1>XAU/USD AI Trading</h1>
+
+<button onclick="analyze()">Analyze Gold</button>
+
+<div id="result"></div>
+
+<script>
+async function analyze(){
+
+const r=await fetch("/api/xau-analyze")
+const data=await r.json()
+
+document.getElementById("result").innerHTML=`
+Price: ${data.price} <br>
+Signal: ${data.signal} <br>
+Entry: ${data.entry} <br>
+SL: ${data.sl} <br>
+TP: ${data.tp} <br>
+RR: ${data.rr}
+`
+}
+</script>
